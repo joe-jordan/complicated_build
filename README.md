@@ -29,8 +29,31 @@ example usage in a setup.py:
         packages=["mylib"]
     )
 
+some default values to watch for:
 
-or, a more involved example:
+    compiler = {
+      'cpp' : 'g++',
+      'c' : 'gcc',
+      'f90' : 'gfortran'
+    }
+
+if you want to support, for example, `F77` files you can do:
+
+    cb.compiler['f'] = 'gfortran'
+
+or, if you want to use the NAG fortran compilers:
+
+    cb.compiler['f90'] = 'nagfor'
+
+or if you're strange (cough cough) and use `.cxx` or `.cc` instead of `.cpp` you can do:
+
+    cb.compiler['cxx'] = 'g++'
+
+however, you may need to modify the function `cb._linker_vars` to better reflect what runtimes you need to link against (especially if you are mixing fortran and C++ sources.)
+
+additionally, if you don't have Cython installed on your system, the program shouldn't crash (unless you're trying to compile `.pyx` files, of course) -- it only gets around to `import`ing Cython when it needs to `cythonize` the sources.
+
+Finally, a more involved example:
 
     import cb
     from distutils.core import setup
