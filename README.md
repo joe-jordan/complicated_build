@@ -65,14 +65,14 @@ Finally, a more involved example:
     global_macros = [("__FORCE_CPP__",)]
     
     extensions = [
-      {'name' : 'watershed',
+      {'name' : 'pywat.watershed',
         'sources' : [
           'pywat/watershed.pyx',
           'clibs/watershed.cpp',
           'clibs/stripack.f90',
           'clibs/tensors/D3Vector.cpp'
       ]},
-      {'name' : 'shapes',
+      {'name' : 'pywat.shapes',
         'sources' : [
           'pywat/shapes.pyx',
           'clibs/custom_types/d3shape.cpp',
