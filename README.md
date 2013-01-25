@@ -110,3 +110,24 @@ setup(
   packages=["pywat"]
 )
 ```
+
+**INDEPENDENCE**
+
+If you don't want your project to require the user to come and find my library and install it, you can bundle it with your software as follows:
+
+```python
+try:
+  import cb
+except ImportError:
+  print "downloading complicated build..."
+  import urllib2
+  response = urllib2.urlopen('https://raw.github.com/joe-jordan/complicated_build/master/cb/__init__.py')
+  content = response.read()
+  f = open('cb.py', 'w')
+  f.write(content)
+  f.close()
+  import cb
+  print "done!"
+```
+
+You can see this setup in action in one of my other projects, [pyvoro](https://github.com/joe-jordan/pyvoro), the snippet is simply included in the top of [setup.py](https://github.com/joe-jordan/pyvoro/blob/master/setup.py)
