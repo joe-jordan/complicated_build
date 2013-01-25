@@ -1,6 +1,8 @@
 complicated_build
 =================
 
+(released under the MIT license, see the LICENSE file.)
+
 a python extension build system (with Cython support) which allows automated compilation a mixture of C, C++, FORTRAN and Cython sources without F2PY interference.
 
 inspired by the problem in [this stackoverflow question](http://stackoverflow.com/questions/12696520/cython-and-fortran-how-to-compile-together-without-f2py).

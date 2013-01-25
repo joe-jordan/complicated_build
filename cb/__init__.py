@@ -1,3 +1,7 @@
+# Complicated Build (cb) Copyright (c) 2013 Joe Jordan
+# This code is licensed under MIT license (see LICENSE for details)
+#
+
 from distutils.sysconfig import get_python_inc
 import sys, os, os.path, shutil, re
 
