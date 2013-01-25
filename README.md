@@ -5,6 +5,8 @@ a python extension build system (with Cython support) which allows automated com
 
 inspired by the problem in [this stackoverflow question](http://stackoverflow.com/questions/12696520/cython-and-fortran-how-to-compile-together-without-f2py).
 
+Note, this library also provides a significant improvement on the default python build system for native extensions with many source files: by default it *caches all temporary build objects*, and only recompiles the particular source files that have changed. When debugging extensions, e.g. making small changes to one or two source files in a long list, this can present a significant time saving in each build/run stage.
+
 example usage in a setup.py:
 
 ```python

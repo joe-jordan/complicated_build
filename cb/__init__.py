@@ -34,8 +34,8 @@ def _ensure_dirs(*args):
 def _final_target(name):
   return final_prefix + name.replace('.', os.sep) + '.so'
 
-def _temp_dir_for_seperate_module(name):
-  return temp_prefix + name.replace('.', '') + os.sep
+def _temp_dir_for_seperate_module(name, arch):
+  return temp_prefix + name.replace('.', '') + arch + os.sep
 
 def _macro_string(macros):
   if macros == None or len(macros) == 0:
@@ -85,7 +85,7 @@ def _run_command(c, err="compiler error detected!"):
 
 def _seperate_build(extension, global_macros, global_includes):
   target = _final_target(extension['name'])
-  temp = _temp_dir_for_seperate_module(extension['name'])
+  temp = _temp_dir_for_seperate_module(extension['name'], extension['arch'])
   _ensure_dirs(os.path.split(target)[0], temp)
   _custom_cythonise(extension['sources'])
   compile_commands = []
@@ -138,7 +138,7 @@ def _seperate_build(extension, global_macros, global_includes):
 
 def _common_build(extensions, global_macros, global_includes, arch):
   targets = [_final_target(e['name']) for e in extensions]
-  temp = temp_prefix + "common_build" + os.sep
+  temp = temp_prefix + "common_build" + arch + os.sep
   
   _ensure_dirs(*([os.path.split(t)[0] for t in targets] + [temp]))
   
