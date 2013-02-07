@@ -2,7 +2,7 @@
 # This code is licensed under MIT license (see LICENSE for details)
 #
 
-from distutils.sysconfig import get_python_inc
+from distutils.sysconfig import get_python_inc, get_config_vars
 import sys, os, os.path, shutil, re
 
 final_prefix = 'build' + os.sep + 'lib' + os.sep
@@ -11,8 +11,8 @@ temp_prefix = 'build' + os.sep + 'cb_temp' + os.sep
 # add more file extensions, with appropriate compiler command, here:
 # be warned that you may need to customise _linker_vars below too.
 compiler = {
-  'cpp' : 'g++',
-  'c' : 'gcc',
+  'cpp' : " ".join(get_config_vars('CXX', 'BASECFLAGS', 'OPT', 'CPPFLAGS', 'CFLAGSFORSHARED')),
+  'c' : " ".join(get_config_vars('CC', 'BASECFLAGS', 'OPT', 'CFLAGSFORSHARED')),
   'f90' : 'gfortran'
 }
 
@@ -65,15 +65,17 @@ def _source_to_object(f):
   return source_to_object_re.sub('', f) + '.o'
 
 def _linker_vars(file_exts):
-  linking_compiler = compiler['c']
+  linking_compiler = get_config_vars("LDSHARED")[0]
   file_exts = set(file_exts)
   runtime_libs = ""
+  cxx = False
   if 'cpp' in file_exts:
-    linking_compiler = compiler['cpp']
+    linking_compiler = get_config_vars("LDCXXSHARED")[0]
+    cxx = True
   if 'f90' in file_exts:
-    if linking_compiler == compiler['cpp']:
+    if cxx:
       runtime_libs = "-lc -lstdc++"
-    linking_compiler = compiler['f90']
+    linking_compiler = " ".join([compiler['f90']] + linking_compiler.split()[1:])
   return (linking_compiler, runtime_libs)
 
 def _exists_and_newer(target, source):
@@ -107,7 +109,6 @@ def _seperate_build(extension, global_macros, global_includes):
         compiler[file_exts[-1]],
         global_macros,
         _macro_string(extension['define_macros']) if 'define_macros' in extension else "",
-        "-arch", extension['arch'],
         global_includes,
         _include_string(extension['include_dirs']) if 'include_dirs' in extension else "",
         '-o', object_files[-1],
@@ -119,9 +120,7 @@ def _seperate_build(extension, global_macros, global_includes):
   linking_compiler, runtime_libs = _linker_vars(file_exts)
   link_command = ' '.join([
     linking_compiler,
-    "-arch", extension['arch'],
     runtime_libs,
-    "-bundle -undefined dynamic_lookup", # magic python .so things...
     ' '.join(object_files),
     '-o', target
   ])
@@ -169,7 +168,6 @@ def _common_build(extensions, global_macros, global_includes, arch):
       ' '.join([
         compiler[file_exts[-1]],
         global_macros,
-        "-arch", arch,
         global_includes,
         '-o', object_files[-1],
         '-c', f
@@ -183,9 +181,7 @@ def _common_build(extensions, global_macros, global_includes, arch):
     linking_compiler, runtime_libs = _linker_vars([os.path.split(f)[1].split('.')[1] for f in e['sources']])
     linker_lines.append(' '.join([
       linking_compiler,
-      "-arch", arch,
       runtime_libs,
-      "-bundle -undefined dynamic_lookup", # magic python .so things...
       ' '.join([temp + _source_to_object(f) for f in e['sources']]),
       '-o', targets[i]
     ]))

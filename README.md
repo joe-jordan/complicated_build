@@ -9,6 +9,10 @@ inspired by the problem in [this stackoverflow question](http://stackoverflow.co
 
 Note, this library also provides a significant improvement on the default python build system for native extensions with many source files: by default it *caches all temporary build objects*, and only recompiles the particular source files that have changed. The distutils default (designed for single file extensions, no doubt) recompiles *all* sources if *any* have changed. When debugging extensions, e.g. making small changes to one or two source files in a long list, this can present a significant time saving in each build/run cycle.
 
+This module uses the *default python flags* for building sources, which includes all kinds of cruft that were generated in the makefile that compiled python itself. Do not use this for building straight C or C++ sources (at least, if you do, fork it and remove all the calls to `distutils.sysconfig` functions.)
+
+note, also, that the `arch` argument is no longer passed to the compiler, as this is not compatible with some compilers, and is now only used in temp directory names. (if such a flag is required, it will be present in the `distutils.sysconfig` vars without further intervention.)
+
 example usage in a setup.py:
 
 ```python
@@ -41,11 +45,13 @@ some default values to watch for:
 
 ```python
 compiler = {
-  'cpp' : 'g++',
-  'c' : 'gcc',
+  'cpp' : " ".join(distutils.sysconfig.get_config_vars('CXX', 'CPPFLAGS')), # normally something like g++
+  'c' : " ".join(distutils.sysconfig.get_config_vars('CC', 'CFLAGS')), # normally something like gcc
   'f90' : 'gfortran'
 }
 ```
+
+*(sysconfig functions return what was in the Makefile that built python.)*
 
 if you want to support, for example, `F77` files you can do:
 
@@ -62,7 +68,7 @@ cb.compiler['f90'] = 'nagfor'
 or if you're strange (cough cough) and use `.cxx` or `.cc` instead of `.cpp` you can do:
 
 ```python
-cb.compiler['cxx'] = 'g++'
+cb.compiler['cxx'] = cb.compiler['cpp']
 ```
 
 however, you may need to modify the function `cb._linker_vars` to better reflect what runtimes you need to link against (especially if you are mixing fortran and C++ sources.)
