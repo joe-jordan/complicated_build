@@ -220,6 +220,7 @@ def build(extensions, arch='x86_64', global_macros=None, global_includes=None):
   if global_macros is provided, and 'define_macros' and 'include_dirs' is missing
   for all extensions, common sources will only be built once, and linked multiple times.
   note, you may still declare global_macros and global_includes.
+  note also, that the arch argument is now only used to determine temp directory names.
   """
   if global_includes == None:
     global_includes = [get_python_inc()]
