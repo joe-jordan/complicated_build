@@ -13,7 +13,7 @@ temp_prefix = 'build' + os.sep + 'cb_temp' + os.sep
 compiler = {
   'cpp' : " ".join(get_config_vars('CXX', 'BASECFLAGS', 'OPT', 'CPPFLAGS', 'CFLAGSFORSHARED')),
   'c' : " ".join(get_config_vars('CC', 'BASECFLAGS', 'OPT', 'CFLAGSFORSHARED')),
-  'f90' : 'gfortran'
+  'f90' : 'gfortran ' + get_config_vars('CFLAGSFORSHARED')[0]
 }
 
 cythonize = None
