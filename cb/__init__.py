@@ -3,10 +3,12 @@
 #
 
 from distutils.sysconfig import get_python_inc, get_config_vars
-import sys, os, os.path, shutil, re
+import sys, os, os.path, shutil, re, glob
 
-final_prefix = 'build' + os.sep + 'lib' + os.sep
+final_prefix = None
 temp_prefix = 'build' + os.sep + 'cb_temp' + os.sep
+
+from distutils.core import setup as distsetup
 
 # add more file extensions, with appropriate compiler command, here:
 # be warned that you may need to customise _linker_vars below too.
@@ -233,4 +235,33 @@ def build(extensions, arch='x86_64', global_macros=None, global_includes=None):
     for e in extensions:
       e['arch'] = arch
       _seperate_build(e, global_macros, global_includes)
+
+def BuildError(Exception): pass
+
+def setup(*args, **kwargs):
+  """decorator for distutils.core.setup - use as:
+  args_to_cb_dot_build = []
+  mysetup = cb.setup(*args_to_cb_build)
+  mysetup(args_to_distutils_setup)"""
+  def wrapped(*setupargs, **setupkwargs):
+    global final_prefix
+    
+    # check if we're trying to install and haven't built yet?
+    libs = glob.glob('build/lib*')
+    if ('install' in sys.argv and len(libs) == 0):
+      raise BuildError('please run build before trying to install.')
+    
+    distsetup(*setupargs, **setupkwargs)
+
+    if 'build' in sys.argv:
+      # check that lib directory exists:
+      libs = glob.glob('build/lib*')
+      if len(libs) != 1:
+        raise BuildError("please run clean before build, cb can't handle multiple arches!")
+      final_prefix = libs[0] + os.sep
+      build(*args, **kwargs)
   
+  return wrapped
+
+
+

@@ -13,11 +13,12 @@ This module uses the *default python flags* for building sources, which includes
 
 note, also, that the `arch` argument is no longer passed to the compiler, as this is not compatible with some compilers, and is now only used in temp directory names. (if such a flag is required, it will be present in the `distutils.sysconfig` vars without further intervention.)
 
+note, finally, that this has been modified to act as a decorator for `distutils.core.setup`, see the examples of the new invocation style below.
+
 example usage in a setup.py:
 
 ```python
 import cb
-from distutils.core import setup
 
 global_includes = ['/opt/local/include/']
 global_macros = [("__SOME_MACRO__",), ("__MACRO_WITH_VALUE__", "5")]
@@ -26,12 +27,8 @@ extensions = [{'name' : 'mylib.impl',
     'sources' : ['mylib/impl.pyx', 'clibs/some_other_code.cpp']
 }]
 
-import sys, os.path
-if 'build' in sys.argv or ('install' in sys.argv and not os.path.exists('build')):
-    cb.build(extensions, global_macros = global_macros, global_includes = global_includes)
-
 import datetime
-setup(
+cb.setup(extensions, global_macros = global_macros, global_includes = global_includes)(
     name="mylib",
     version=datetime.date.today().strftime("%d%b%Y"),
     author="A N Other",
@@ -79,7 +76,6 @@ Finally, a more involved example:
 
 ```python
 import cb
-from distutils.core import setup
 import numpy as np
 
 global_includes = [np.get_include()]
@@ -104,12 +100,8 @@ extensions = [
   ]}
 ]
 
-import sys, os.path
-if 'build' in sys.argv or ('install' in sys.argv and not os.path.exists('build')):
-  cb.build(extensions, global_macros = global_macros, global_includes = global_includes)
-
 import datetime
-setup(
+cb.setup(extensions, global_macros = global_macros, global_includes = global_includes)(
   name="pywat",
   version=datetime.date.today().strftime("%d%b%Y"),
   author="Joe Jordan",
