@@ -77,11 +77,11 @@ def _linker_vars(file_exts):
     # which causes an error when you try to load the module. The C linker *does* contain the
     # required commands, so we simply include both when this situation arises:
     osxhack = ""
-    if sys.platform == 'darwin' and linking_compiler[:9] == "llvm-gcc":
+    if sys.platform == 'darwin' and linking_compiler[:8] == "llvm-gcc":
       osxhack = ' '.join(linking_compiler.split()[1:])
     # (note that in Mountain Lion, or in general when using clang++, fat bundles *are* created
     # even though the -arch flags are ommitted in the linker command.)
-    linking_compiler = get_config_vars("LDCXXSHARED")[0] + osxhack
+    linking_compiler = get_config_vars("LDCXXSHARED")[0] + ' ' + osxhack
     cxx = True
   if 'f90' in file_exts:
     if cxx:
