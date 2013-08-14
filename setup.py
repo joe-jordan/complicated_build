@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name="Complicated build",
-  version="1.2.0",
+  version="1.3.0",
   description="library which provides a simple interface to perform complex compilation tasks with multi-ligual sources.",
   author="Joe Jordan",
   author_email="tehwalrus@h2j9k.org",

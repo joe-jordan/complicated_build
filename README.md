@@ -5,6 +5,8 @@ complicated_build
 
 a python extension build system (with Cython support) which allows automated compilation a mixture of C, C++, FORTRAN and Cython sources without F2PY interference.
 
+*NEW IN v1.3:* support for linking against static libs on a per-extension basis. see new 'link_to' key on extension dicts.
+
 inspired by the problem in [this stackoverflow question](http://stackoverflow.com/questions/12696520/cython-and-fortran-how-to-compile-together-without-f2py).
 
 Note, this library also provides a significant improvement on the default python build system for native extensions with many source files: by default it *caches all temporary build objects*, and only recompiles the particular source files that have changed. The distutils default (designed for single file extensions, no doubt) recompiles *all* sources if *any* have changed. When debugging extensions, e.g. making small changes to one or two source files in a long list, this can present a significant time saving in each build/run cycle.
@@ -26,7 +28,8 @@ global_includes = ['/opt/local/include/']
 global_macros = [("__SOME_MACRO__",), ("__MACRO_WITH_VALUE__", "5")]
 
 extensions = [{'name' : 'mylib.impl',
-    'sources' : ['mylib/impl.pyx', 'clibs/some_other_code.cpp']
+    'sources' : ['mylib/impl.pyx', 'clibs/some_other_code.cpp'],
+    'link_to' : ["pthread"] # will include the -l when added to the linker line.
 }]
 
 import datetime

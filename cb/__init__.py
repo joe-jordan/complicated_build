@@ -66,7 +66,7 @@ source_to_object_re = re.compile('[.' + os.sep + ']')
 def _source_to_object(f):
   return source_to_object_re.sub('', f) + '.o'
 
-def _linker_vars(file_exts):
+def _linker_vars(file_exts, link_to):
   linking_compiler = get_config_vars("LDSHARED")[0]
   file_exts = set(file_exts)
   runtime_libs = ""
@@ -78,6 +78,10 @@ def _linker_vars(file_exts):
     if cxx:
       runtime_libs = "-lc -lstdc++"
     linking_compiler = " ".join([compiler['f90']] + linking_compiler.split()[1:])
+  
+  if link_to:
+    runtime_libs = runtime_libs + " " + " ".join(["-l" + i for i in link_to])
+  
   return (linking_compiler, runtime_libs)
 
 def _exists_and_newer(target, source):
@@ -102,6 +106,11 @@ def _seperate_build(extension, global_macros, global_includes):
   global_macros = _macro_string(global_macros)
   global_includes = _include_string(global_includes)
   
+  try:
+    link_to = extension['link_to']
+  except KeyError:
+    link_to = False
+  
   # compute the compile line for each file:
   for f in extension['sources']:
     file_exts.append(os.path.split(f)[1].split('.')[1])
@@ -119,7 +128,7 @@ def _seperate_build(extension, global_macros, global_includes):
     )
   
   # penultimately, we compute the linking line:
-  linking_compiler, runtime_libs = _linker_vars(file_exts)
+  linking_compiler, runtime_libs = _linker_vars(file_exts, link_to)
   link_command = ' '.join([
     linking_compiler,
     runtime_libs,
@@ -217,7 +226,8 @@ def build(extensions, arch='x86_64', global_macros=None, global_includes=None):
     ],
     # optional:
     'include_dirs' : ['paths'],
-    'define_macros' : [("MACRO_NAME", "VALUE")] # or just ("MACRO_NAME",) but remember the ,!
+    'define_macros' : [("MACRO_NAME", "VALUE")], # or just ("MACRO_NAME",) but remember the ,!
+    'link_to' : ['gmp'] # passes linker the -lgmp argument.
   }
   if global_macros is provided, and 'define_macros' and 'include_dirs' is missing
   for all extensions, common sources will only be built once, and linked multiple times.
@@ -229,7 +239,7 @@ def build(extensions, arch='x86_64', global_macros=None, global_includes=None):
   else:
     global_includes = [get_python_inc()] + global_includes
   if (len(extensions) > 1 and 
-    all(['define_macros' not in e and 'include_dirs' not in e for e in extensions])):
+    all(['define_macros' not in e and 'include_dirs' not in e  and 'link_to' not in e for e in extensions])):
     _common_build(extensions, global_macros, global_includes, arch)
   else:
     for e in extensions:
