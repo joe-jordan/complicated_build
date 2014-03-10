@@ -13,9 +13,7 @@ Note, this library also provides a significant improvement on the default python
 
 *SUBNOTE:* There is also a minor 'bug' in that, since you don't specify header files like in a `Makefile`, it doesn't detect changes in header files. If this is annoying enough please post a bug, and I'll work out how to fix it without breaking the existing interface (which will be a minor pain).
 
-This module uses the *default python flags* for building sources, which includes all kinds of cruft that were generated in the makefile that compiled python itself. Do not use this for building straight C or C++ sources (at least, if you do, fork it and remove all the calls to `distutils.sysconfig` functions.)
-
-note, also, that the `arch` argument is no longer passed to the compiler, as this is not compatible with some compilers, and is now only used in temp directory names. (if such a flag is required, it will be present in the `distutils.sysconfig` vars without further intervention.)
+This module uses the *default python flags* for building sources, which includes all kinds of cruft that were generated in the makefile that compiled python itself. Also, the `arch` argument is no longer passed to the compiler, as this is not compatible with some compilers, and is now only used in temp directory names. (if such a flag is required, it will be present in the `distutils.sysconfig` vars without further intervention.)
 
 note, finally, that this has been modified to act as a decorator for `distutils.core.setup`, see the examples of the new invocation style below.
 
