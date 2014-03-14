@@ -66,7 +66,7 @@ source_to_object_re = re.compile('[.' + os.sep + ']')
 def _source_to_object(f):
   return source_to_object_re.sub('', f) + '.o'
 
-def _linker_vars(file_exts, link_to):
+def _linker_vars(file_exts, link_to=None):
   linking_compiler = get_config_vars("LDSHARED")[0]
   file_exts = set(file_exts)
   runtime_libs = ""
