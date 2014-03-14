@@ -95,7 +95,7 @@ def _run_command(c, err="compiler error detected!"):
     print err
     exit()
 
-def _seperate_build(extension, global_macros, global_includes):
+def _seperate_build(extension, global_macros, global_includes, global_lib_dirs):
   target = _final_target(extension['name'])
   temp = _temp_dir_for_seperate_module(extension['name'], extension['arch'])
   _ensure_dirs(os.path.split(target)[0], temp)
@@ -131,7 +131,8 @@ def _seperate_build(extension, global_macros, global_includes):
   linking_compiler, runtime_libs = _linker_vars(file_exts, link_to)
   link_command = ' '.join([
     linking_compiler,
-    runtime_libs,
+    runtime_libs ] +
+    ["-L" + dir for dir in global_lib_dirs] + [
     ' '.join(object_files),
     '-o', target
   ])
@@ -150,7 +151,7 @@ def _seperate_build(extension, global_macros, global_includes):
     return
   _run_command(link_command, "linker error detected!")  
 
-def _common_build(extensions, global_macros, global_includes, arch):
+def _common_build(extensions, global_macros, global_includes, global_lib_dirs, arch):
   targets = [_final_target(e['name']) for e in extensions]
   temp = temp_prefix + "common_build" + arch + os.sep
   
@@ -192,8 +193,9 @@ def _common_build(extensions, global_macros, global_includes, arch):
     linking_compiler, runtime_libs = _linker_vars([os.path.split(f)[1].split('.')[1] for f in e['sources']])
     linker_lines.append(' '.join([
       linking_compiler,
-      runtime_libs,
-      ' '.join([temp + _source_to_object(f) for f in e['sources']]),
+      runtime_libs] +
+      ["-L" + dir for dir in global_lib_dirs] +
+      [temp + _source_to_object(f) for f in e['sources']] + [
       '-o', targets[i]
     ]))
     
@@ -214,7 +216,7 @@ def _common_build(extensions, global_macros, global_includes, arch):
   for cc in linker_lines:
     _run_command(cc, "linker error detected!")
 
-def build(extensions, arch='x86_64', global_macros=None, global_includes=None):
+def build(extensions, arch='x86_64', global_macros=None, global_includes=None, global_lib_dirs=None):
   """extensions should be an array of dicts containing:
   {
     'name' : 'mylib.mymodule',
@@ -240,11 +242,11 @@ def build(extensions, arch='x86_64', global_macros=None, global_includes=None):
     global_includes = [get_python_inc()] + global_includes
   if (len(extensions) > 1 and 
     all(['define_macros' not in e and 'include_dirs' not in e  and 'link_to' not in e for e in extensions])):
-    _common_build(extensions, global_macros, global_includes, arch)
+    _common_build(extensions, global_macros, global_includes, global_lib_dirs, arch)
   else:
     for e in extensions:
       e['arch'] = arch
-      _seperate_build(e, global_macros, global_includes)
+      _seperate_build(e, global_macros, global_includes, global_lib_dirs)
 
 def BuildError(Exception): pass
 

@@ -5,6 +5,8 @@ complicated_build
 
 a python extension build system (with Cython support) which allows automated compilation a mixture of C, C++, FORTRAN and Cython sources without F2PY interference.
 
+*NEW IN v1.4:* support for specifying library locations (only globally.)
+
 *NEW IN v1.3:* support for linking against static libs on a per-extension basis. see new 'link_to' key on extension dicts.
 
 inspired by the problem in [this stackoverflow question](http://stackoverflow.com/questions/12696520/cython-and-fortran-how-to-compile-together-without-f2py).
@@ -24,7 +26,8 @@ example usage in a setup.py:
 ```python
 import cb
 
-global_includes = ['/opt/local/include/']
+global_includes = ['/opt/local/include']
+global_lib_dirs = ['/opt/local/lib']
 global_macros = [("__SOME_MACRO__",), ("__MACRO_WITH_VALUE__", "5")]
 
 extensions = [{'name' : 'mylib.impl',
@@ -33,7 +36,8 @@ extensions = [{'name' : 'mylib.impl',
 }]
 
 import datetime
-cb.setup(extensions, global_macros = global_macros, global_includes = global_includes)(
+cb.setup(extensions, global_macros = global_macros, global_includes = global_includes, 
+  global_lib_dirs = global_lib_dirs)(
     name="mylib",
     version=datetime.date.today().strftime("%d%b%Y"),
     author="A N Other",
