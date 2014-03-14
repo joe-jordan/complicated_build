@@ -72,7 +72,12 @@ def _linker_vars(file_exts, link_to=None):
   runtime_libs = ""
   cxx = False
   if 'cpp' in file_exts:
-    linking_compiler = get_config_vars("LDCXXSHARED")[0]
+    tmp = get_config_vars("LDCXXSHARED")[0]
+    if tmp:
+      linking_compiler = tmp
+    else:
+      # if linking using the C compiler, make sure we also link against the C++ runtime.
+      runtime_libs = "-lstdc++"
     cxx = True
   if 'f90' in file_exts:
     if cxx:
