@@ -245,6 +245,9 @@ def build(extensions, arch='x86_64', global_macros=None, global_includes=None, g
     global_includes = [get_python_inc()]
   else:
     global_includes = [get_python_inc()] + global_includes
+  if global_lib_dirs == None:
+    global_lib_dirs = []
+
   if (len(extensions) > 1 and 
     all(['define_macros' not in e and 'include_dirs' not in e  and 'link_to' not in e for e in extensions])):
     _common_build(extensions, global_macros, global_includes, global_lib_dirs, arch)
