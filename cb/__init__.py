@@ -135,11 +135,10 @@ def _seperate_build(extension, global_macros, global_includes, global_lib_dirs):
   # penultimately, we compute the linking line:
   linking_compiler, runtime_libs = _linker_vars(file_exts, link_to)
   link_command = ' '.join([
-    linking_compiler,
-    runtime_libs ] +
+    linking_compiler] +
     ["-L" + dir for dir in global_lib_dirs] + [
     ' '.join(object_files),
-    '-o', target
+    '-o', target, runtime_libs
   ])
   
   # now actually run the commands, if the object files need refreshing:
@@ -197,11 +196,10 @@ def _common_build(extensions, global_macros, global_includes, global_lib_dirs, a
     # for each linker line, we have to choose the correct set of file extensions.
     linking_compiler, runtime_libs = _linker_vars([os.path.split(f)[1].split('.')[1] for f in e['sources']])
     linker_lines.append(' '.join([
-      linking_compiler,
-      runtime_libs] +
+      linking_compiler] +
       ["-L" + dir for dir in global_lib_dirs] +
       [temp + _source_to_object(f) for f in e['sources']] + [
-      '-o', targets[i]
+      '-o', targets[i], runtime_libs
     ]))
     
   # run everything.
